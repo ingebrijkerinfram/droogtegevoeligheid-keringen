@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
+"""
+Created on Fri Jul 18 16:12:21 2025
+
+@author: inge.brijker
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import warnings
-import xarray as xr 
+
+from netCDF4 import Dataset
+import xarray as xr
+
+dataframe = xr.open_dataset('hurs_Hd_2050_interp (1).nc')
 
 warnings.filterwarnings("ignore")
 
 # Handmatige input
 grondsoort = "zand"  # 'zand' of 'klei'
-dijkvak_id = "Haven Breskens"
-
-ds_hurs = xr.open_dataset('hurs_Hd_2050_interp (1).nc')
-ds_tas = xr.open_dataset('tas_Hd_2050_interp.nc')
-ds_tasmax = xr.open_dataset('tasmax_Hd_2050_interp.nc')
-ds_tasmin = xr.open_dataset('tasmin_Hd_2050_interp.nc')
-ds_pr = xr.open_dataset('pr_Hd_2050_interp.nc')
-ds_sfcwind = xr.open_dataset('sfcwind_Hd_2050_interp.nc')
-ds_pet = xr.open_dataset('pet_Hd_2050_interp.nc')
-ds_rsds = xr.open_dataset('rsds_Hd_2050_interp.nc')
+dijkvak_id = "Dijkvak A"
+bestand = "Kopie van 250321 CD Dashboard WRIJ 2024 (External).xlsm"
 
 #DikeGrass crop parameters getest door Thomas (voor nu)
 #hier kan een if statement: if "zand", then:, else (clay)
@@ -28,55 +30,20 @@ Ofc, Owp = 0.2, 0.05
 ini, dev, mid, late = 30, 0, 365, 0
 pcrop = 0.45
 
-#Stel hier de gewenste locatie in (coördinaten of index)
-ens_idx = 1  # tweede realisatie
-lat_idx = 3.54933  # kies gewenste lat index
-lon_idx = 51.40097  # kies gewenste lon index
 
-#Haal tijdreeks op voor 1 punt en 1 realisatie
-dates = ds_hurs['time'].values
-
-def load_weather_from_nc(ens=1, lat=3.54933, lon=51.40097, jaar=2050):
-    # Tijd filteren
-    time_filter = ds_hurs['time'].dt.year == jaar
-
-    # Tijdstappen ophalen (gefilterd)
-    dates = ds_hurs['time'].where(time_filter, drop=True).values
-
-    # Waarden ophalen met .sel(..., method='nearest')
-    T = ds_tas['tas'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    Tmin = ds_tasmin['tasmin'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    Tmax = ds_tasmax['tasmax'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    RH = ds_hurs['hurs'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    Wind = ds_sfcwind['sfcwind'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    P = ds_pr['pr'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-
-    # Berekende velden
-    RHmin = (0.6108 * np.exp((17.27 * Tmin) / (Tmin + 237.3))) / (0.6108 * np.exp((17.27 * Tmax) / (Tmax + 237.3))) * 100
-    dRH = (RH - RHmin) / 2
-    RHmax = np.where(RH + dRH > 100, 100, np.where(dRH < 0, RHmin, RH + dRH))
-    Tsoil = T * 0.949 + 0.6136
-
-    # DataFrame bouwen
-    df = pd.DataFrame({
-        'Date': pd.to_datetime(dates),
-        'Wind': Wind,
-        'T': T,
-        'Tmin': Tmin,
-        'Tmax': Tmax,
-        'RH': RH,
-        'RHmin': RHmin,
-        'RHmax': RHmax,
-        'dRH': dRH,
-        'P': P,
-        'p': P,
-        'Tsoil': Tsoil
-    })
-
+def weatherdata_analysis(f):
+    df = f.parse('Weather Data 2024 Laag_keppel', header=2)
+    df[['T', 'Tmin', 'Tmax', 'RH']] = df[['T', 'Tmin', 'Tmax', 'RH']].apply(pd.to_numeric, errors='coerce')
+    #toen ik deze regel toevoegde veranderde de dagen naar 20 dagen langste uitval periode
+    df['RHmin'] = (0.6108 * np.exp((17.27 * df['Tmin']) / (df['Tmin'] + 237.3))) / (0.6108 * np.exp((17.27 * df['Tmax']) / (df['Tmax'] + 237.3))) * 100
+    df['dRH'] = (df['RH']- df['RHmin'])/2
+    df['RHmax'] = np.where(df['RH'] + df['dRH'] > 100, 100, np.where(df['dRH'] < 0, df['RHmin'], df['RH'] + df['dRH']))
+    df['Tsoil'] = df['T']* 0.949 + 0.6136
+    
+    df = df[['Date', 'Wind', 'T', 'Tmin', 'Tmax', 'RH', 'RHmin', 'RHmax', 'dRH', 'P', 'p', 'Tsoil']]
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     return df.dropna()
-
-    return df.dropna()
-
+    #voeg een print statement in om te checken. 
 
 def watercalculations(df):
     df = df.copy()
@@ -223,31 +190,19 @@ def watercalculations(df):
 
 
 def verwelkingspunt(df, TAW):
-    grens = 0.8 * TAW
-    max_dagen_onder_grens = 0
-    huidig_lengte = 0
+   grens = 0.8 * TAW
+   dagen_onder_grens = 0
+   max_dagen_onder_grens = 0
 
-    onder_grens_dagen = []
+   for waarde in df['Distart']:
+       if waarde > grens:
+           dagen_onder_grens += 1
+           max_dagen_onder_grens = max(max_dagen_onder_grens, dagen_onder_grens)
+       else:
+           dagen_onder_grens = 0
 
-    for i, waarde in enumerate(df['Distart']):
-        if waarde >= grens:
-            huidig_lengte += 1
-            onder_grens_dagen.append(df['Date'].iloc[i])
-            max_dagen_onder_grens = max(max_dagen_onder_grens, huidig_lengte)
-        else:
-            huidig_lengte = 0  # reset bij boven grens
-
-    # Totaal aantal dagen onder de grens (ongeacht aaneengeslotenheid)
-    totaal_onder_grens = len(onder_grens_dagen)
-
-    # Eerste en laatste dag onder grens
-    eerste_dag = onder_grens_dagen[0] if onder_grens_dagen else None
-    laatste_dag = onder_grens_dagen[-1] if onder_grens_dagen else None
-
-    # Vegetatie-uitval als de langste aaneengesloten periode > 45 dagen
-    vegetatie_uitval = max_dagen_onder_grens > 45
-
-    return max_dagen_onder_grens, vegetatie_uitval, totaal_onder_grens, eerste_dag, laatste_dag
+   vegetatie_uitval = max_dagen_onder_grens > 45
+   return max_dagen_onder_grens, vegetatie_uitval
     #check voor een reset value, aka als het 44 dagen is geweest en na twee dagen regen weer, reset het?
 
 
@@ -269,41 +224,29 @@ def plot(df, TAW):
     plt.tight_layout()
     plt.show()
 
-# def print_result_table(df):
-#     """
-#     Print een tabel met de eerste 10 dagen van de berekening.
-#     Alles is nu correct gecheckt
-#     """
-#     kolommen = ['Date', 'ETc', 'ET0', 'Diend', 'RAW']
-#     # Print de eerste 10 rijen als tabel
-#     print("\n📊 Eerste 10 dagen van de waterbalansberekening:\n")
-#     print(df[kolommen].head(10).to_string(index=False, justify='center'))
+def print_result_table(df):
+    """
+    Print een tabel met de eerste 10 dagen van de berekening.
+    Alles is nu correct gecheckt
+    """
+    kolommen = ['Date', 'ETc', 'ET0', 'Diend', 'RAW']
+    # Print de eerste 10 rijen als tabel
+    print("\n📊 Eerste 10 dagen van de waterbalansberekening:\n")
+    print(df[kolommen].head(10).to_string(index=False, justify='center'))
 
 def main():
-    df_weather = load_weather_from_nc(jaar=2050)
+    f = pd.ExcelFile(bestand)
+    df_weather = weatherdata_analysis(f)
+    df_water = watercalculations(df_weather)
     df_water, TAW = watercalculations(df_weather)
-
-    # Haal alle relevante info uit verwelkingsanalyse
-    max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag = verwelkingspunt(df_water, TAW)
-
-    # Print resultaten
-    print(f"🌾 Langste aaneengesloten periode onder TAW: {max_dagen} dagen")
-    print(f"📉 Totaal aantal dagen onder TAW: {totaal_dagen}")
-    
-    if eerste_dag and laatste_dag:
-        print(f"🕐 Eerste dag onder grens: {eerste_dag.strftime('%Y-%m-%d')}")
-        print(f"🕐 Laatste dag onder grens: {laatste_dag.strftime('%Y-%m-%d')}")
-    else:
-        print("🟢 Geen enkele dag onder de TAW-grens")
-
+    max_dagen, uitval = verwelkingspunt(df_water, TAW)
+    print(f"Langste periode onder TAW: {max_dagen} dagen")
     if uitval:
-        print("\U0001F33F Vegetatie-uitval gedetecteerd (>45 dagen aaneengesloten)")
+        print("\U0001F33F Vegetatie-uitval gedetecteerd (>45 dagen)")
     else:
         print("✅ Geen vegetatie-uitval")
-
-    # Plot grafiek
     plot(df_water, TAW)
-
-    return max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag
+    print_result_table(df_water)
+    return max_dagen, uitval
 
 main()
