@@ -287,6 +287,7 @@ def analyse_per_jaar(ens, lat, lon, jaren):
     max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag = verwelkingspunt(df_water, TAW)
 
     resultaten.append({
+        'Ensemble': ens,
         'Jaar': jaar,
         'Langste uitvalperiode (dagen)': max_dagen,
         'Totaal dagen onder TAW': totaal_dagen,
