@@ -34,7 +34,7 @@ ens_idx = 7  #  realisatie
 lat = 3.54933  # kies gewenste lat index
 lon = 51.40097  # kies gewenste lon index
 jaar = 2055
-jarenrange = range(2050, 2055) 
+jarenrange = range(2036, 2066) 
 
 
 dates = ds_hurs['time'].values
@@ -350,23 +350,27 @@ def main_per_ensembles(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
     return max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag
 
 def main_all_ensembles(lat, lon, jaren):
+    alle_resultaten = []
+
     for jaar in jaren:
         print(f"\n🗓️ Start analyse voor jaar {jaar}\n")
-        alle_resultaten = []
+        resultaten_per_jaar = []
 
         for ens in range(8): 
             print(f"▶️ Verwerken van ensemble {ens} voor jaar {jaar}")
-            resultaten_df = analyse_per_jaar(ens, lat, lon, [jaar])
-            alle_resultaten.append(resultaten_df)
+            resultaten_df = analyse_per_jaar(ens, lat, lon, jaar)
+            resultaten_per_jaar.append(resultaten_df)
 
-        alle_resultaten_df = pd.concat(alle_resultaten, ignore_index=True)
-
+        jaar_df = pd.concat(resultaten_per_jaar, ignore_index=True)
         print(f"\n📊 Resultaten voor jaar {jaar}:\n")
-        print(alle_resultaten_df.to_string(index=False))
-    alle_resultaten_df = pd.concat(alle_resultaten, ignore_index=True)
+        print(jaar_df.to_string(index=False))
 
+        alle_resultaten.append(jaar_df)
+        
+    alle_resultaten_df = pd.concat(alle_resultaten, ignore_index=True)
     select_extreme_cases(alle_resultaten_df, lat=lat, lon=lon)
-    return
+
+    return alle_resultaten_df
 
 
 
