@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -32,9 +33,9 @@ pcrop = 0.45
 ens_idx = 7  #  realisatie
 lat = 3.54933  # kies gewenste lat index
 lon = 51.40097  # kies gewenste lon index
-jaar = 2052
+jaar = 2055
 
-#Haal tijdreeks op voor 1 punt en 1 realisatie
+
 dates = ds_hurs['time'].values
 
 def load_weather_from_nc(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
@@ -73,24 +74,19 @@ def load_weather_from_nc(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
         'p': P,
         'Tsoil': Tsoil
     })
-
     return df.dropna()
-
-    return df.dropna()
-
 
 def watercalculations(df):
     df = df.copy()
     kolommen = ['Tmin', 'Tmax', 'T', 'RH', 'RHmin', 'RHmax', 'P', 'p', 'Wind']
     df[kolommen] = df[kolommen].apply(pd.to_numeric, errors='coerce')
     df = df.dropna(subset=kolommen)
-    df = df.reset_index(drop=True)  # << voeg deze regel toe
+    df = df.reset_index(drop=True)
     df['day_number'] = range(1, len(df) + 1)
 
     latitude = 51.99806
     phi = np.radians(latitude)
-    # TODO
-    # check of radians goed overgezet is
+    
     J = df['Date'].dt.dayofyear
     #Solar declination
     delta = 0.409 * np.sin((2 * np.pi / 365) * J - 1.39)
@@ -215,10 +211,7 @@ def watercalculations(df):
             Distart = Diend 
      # Runoff = 
 
-
     return df, TAW
-    #kijk of de verwelkingslijn hetzelfde is als in het excel model
-    #voeg overige formules toe (runoff, correctie helling)
 
 
 def verwelkingspunt(df, TAW):
@@ -234,58 +227,62 @@ def verwelkingspunt(df, TAW):
             onder_grens_dagen.append(df['Date'].iloc[i])
             max_dagen_onder_grens = max(max_dagen_onder_grens, huidig_lengte)
         else:
-            huidig_lengte = 0  # reset bij boven grens
+            huidig_lengte = 0  
 
-    # Totaal aantal dagen onder de grens (ongeacht aaneengeslotenheid)
     totaal_onder_grens = len(onder_grens_dagen)
-
-    # Eerste en laatste dag onder grens
     eerste_dag = onder_grens_dagen[0] if onder_grens_dagen else None
     laatste_dag = onder_grens_dagen[-1] if onder_grens_dagen else None
 
-    # Vegetatie-uitval als de langste aaneengesloten periode > 45 dagen
     vegetatie_uitval = max_dagen_onder_grens > 45
 
     return max_dagen_onder_grens, vegetatie_uitval, totaal_onder_grens, eerste_dag, laatste_dag
     #check voor een reset value, aka als het 44 dagen is geweest en na twee dagen regen weer, reset het?
 
+def living_plant_cover(ds):
+    """
+    Bereken de levende vegetatiebedekking (in %) op basis van aantal droge dagen.
+    
+    Parameters:
+        ds (int or float): Aantal opeenvolgende droge dagen onder de drempel
+        D100 (int): Aantal dagen waarbij 100% verwelkt is (default = 50)
+        B (float): Vormparameter van de kromme (default = 2)
+    """
+    D100 = 45
+    B = 2
+    if ds < D100:
+        return 100 * (1 - (ds / D100) ** B)
+    else:
+        return 0.0
+    
+    cover = living_plant_cover(ds)
+    return cover
+    
 
 def plot(df, TAW):
-    #TAW = df['TAW'].iloc[0]
     verwelkingsgrens = 0.8 * TAW
 
     plt.figure(figsize=(12, 6))
     plt.plot(df['Date'], df['Distart'], label='Watertekort (Distart)', color='orange')
-    # Beschikbaar water (RAW)
     plt.plot(df['Date'], df['RAW'], label='Beschikbaar water (RAW)', color='blue', linestyle=':')
     plt.axhline(verwelkingsgrens, linestyle='--', color='red', label='Verwelkingsgrens (80% TAW)')
     plt.title(f"Watertekort per dag – {dijkvak_id} ({grondsoort})")
     plt.xlabel("Datum")
     plt.ylabel("Watertekort (mm)")
-    plt.gca().invert_yaxis()  # omgekeerde y-as
+    plt.gca().invert_yaxis()
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.show()
 
-# def print_result_table(df):
-#     """
-#     Print een tabel met de eerste 10 dagen van de berekening.
-#     Alles is nu correct gecheckt
-#     """
-#     kolommen = ['Date', 'ETc', 'ET0', 'Diend', 'RAW']
-#     # Print de eerste 10 rijen als tabel
-#     print("\n📊 Eerste 10 dagen van de waterbalansberekening:\n")
-#     print(df[kolommen].head(10).to_string(index=False, justify='center'))
-
 def analyse_per_jaar(ens, lat, lon, jaren):
     resultaten = []
-
-    # for jaar in jaren:
+    
     df_weather = load_weather_from_nc(jaar=jaar, lat=lat, lon=lon, ens=ens)
     df_water, TAW = watercalculations(df_weather)
     max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag = verwelkingspunt(df_water, TAW)
 
+    cover = living_plant_cover(max_dagen)
+    
     resultaten.append({
         'Ensemble': ens,
         'Jaar': jaar,
@@ -293,19 +290,45 @@ def analyse_per_jaar(ens, lat, lon, jaren):
         'Totaal dagen onder TAW': totaal_dagen,
         'Eerste dag onder TAW': eerste_dag.strftime('%Y-%m-%d') if eerste_dag else None,
         'Laatste dag onder TAW': laatste_dag.strftime('%Y-%m-%d') if laatste_dag else None,
-        'Vegetatie-uitval': "Ja" if uitval else "Nee"
+        'Vegetatie-uitval': "Ja" if uitval else "Nee",
+        'LivingPlantCover (%)': round(cover, 2)
     })
 
     return pd.DataFrame(resultaten)
 
-def main(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
+def select_extreme_cases(resultaten_df, lat, lon):
+    """
+    Selecteert de heftigste jaren + ensembles o.b.v. laagste vegetatiedekking
+    en toont de kernresultaten.
+    """
+    min_cover = resultaten_df["LivingPlantCover (%)"].min()
+    kandidaten = resultaten_df[resultaten_df["LivingPlantCover (%)"] == min_cover]
+
+    max_dagen = kandidaten["Totaal dagen onder TAW"].max()
+    zwaarste = kandidaten[kandidaten["Totaal dagen onder TAW"] == max_dagen]
+
+    kolommen = [
+        'Ensemble',
+        'Jaar',
+        'Langste uitvalperiode (dagen)',
+        'Totaal dagen onder TAW',
+        'Eerste dag onder TAW',
+        'Laatste dag onder TAW',
+        'Vegetatie-uitval',
+        'LivingPlantCover (%)'
+    ]
+    print("Extreemste gevallen op basis van vegetatie-uitval:\n")
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(zwaarste[kolommen])
+
+    return zwaarste[kolommen]
+
+def main_per_ensembles(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
     df_weather = load_weather_from_nc(jaar=jaar)
     df_water, TAW = watercalculations(df_weather)
-
-    # Haal alle relevante info uit verwelkingsanalyse
     max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag = verwelkingspunt(df_water, TAW)
-
-    # Print resultaten
+    cover = living_plant_cover(max_dagen)
+   
     print(f"Langste aaneengesloten periode onder TAW: {max_dagen} dagen")
     print(f"Totaal aantal dagen onder TAW: {totaal_dagen}")
     
@@ -316,13 +339,35 @@ def main(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
         print("🟢 Geen enkele dag onder de TAW-grens")
 
     if uitval:
-        print("\U0001F33F Vegetatie-uitval gedetecteerd (>45 dagen aaneengesloten)")
+        print("Vegetatie-uitval gedetecteerd (>45 dagen aaneengesloten)")
     else:
         print("✅ Geen vegetatie-uitval")
+    print(f"Droogte Periode = {max_dagen} dagen → LivingPlantCover = {cover:.2f}%")
 
-    # Plot grafiek
     plot(df_water, TAW)
     analyse_per_jaar(ens_idx, lat, lon, jaar)
     return max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag
 
-main(ens=ens_idx, lat=lat, lon=lon, jaar=jaar)
+def main_all_ensembles(lat, lon, jaren):
+    for jaar in jaren:
+        print(f"\n🗓️ Start analyse voor jaar {jaar}\n")
+        alle_resultaten = []
+
+        for ens in range(8): 
+            print(f"▶️ Verwerken van ensemble {ens} voor jaar {jaar}")
+            resultaten_df = analyse_per_jaar(ens, lat, lon, [jaar])
+            alle_resultaten.append(resultaten_df)
+
+        alle_resultaten_df = pd.concat(alle_resultaten, ignore_index=True)
+
+        print(f"\n📊 Resultaten voor jaar {jaar}:\n")
+        print(alle_resultaten_df.to_string(index=False))
+    alle_resultaten_df = pd.concat(alle_resultaten, ignore_index=True)
+
+    select_extreme_cases(alle_resultaten_df, lat=lat, lon=lon)
+    return
+
+
+
+# main_per_ensembles(ens_idx, lat, lon, jaar)
+main_all_ensembles(lat=lat, lon=lon, jaren=range(2050, 2053))
