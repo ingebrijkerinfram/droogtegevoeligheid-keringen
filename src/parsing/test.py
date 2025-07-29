@@ -325,7 +325,7 @@ def select_extreme_cases(resultaten_df, lat, lon):
         'Vegetatie-uitval',
         'LivingPlantCover (%)'
     ]
-    print("Extreemste geval(len) op basis van vegetatie-uitval:\n")
+    print("Extreemste gevallen op basis van vegetatie-uitval:\n")
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print(zwaarste[kolommen])
 

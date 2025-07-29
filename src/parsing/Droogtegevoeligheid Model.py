@@ -34,6 +34,7 @@ ens_idx = 7  #  realisatie
 lat = 3.54933  # kies gewenste lat index
 lon = 51.40097  # kies gewenste lon index
 jaar = 2055
+jarenrange = range(2050, 2055) 
 
 
 dates = ds_hurs['time'].values
@@ -274,7 +275,7 @@ def plot(df, TAW):
     plt.tight_layout()
     plt.show()
 
-def analyse_per_jaar(ens, lat, lon, jaren):
+def analyse_per_jaar(ens, lat, lon, jaar):
     resultaten = []
     
     df_weather = load_weather_from_nc(jaar=jaar, lat=lat, lon=lon, ens=ens)
@@ -370,4 +371,4 @@ def main_all_ensembles(lat, lon, jaren):
 
 
 # main_per_ensembles(ens_idx, lat, lon, jaar)
-main_all_ensembles(lat=lat, lon=lon, jaren=range(2050, 2053))
+main_all_ensembles(lat=lat, lon=lon, jaren=jarenrange)
