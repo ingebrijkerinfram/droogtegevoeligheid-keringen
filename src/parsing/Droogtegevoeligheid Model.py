@@ -12,14 +12,14 @@ warnings.filterwarnings("ignore")
 grondsoort = "zand"  # 'zand' of 'klei'
 dijkvak_id = "Haven Breskens"
 
-ds_hurs = xr.open_dataset('hurs_Hd_2050_interp (1).nc')
-ds_tas = xr.open_dataset('tas_Hd_2050_interp.nc')
-ds_tasmax = xr.open_dataset('tasmax_Hd_2050_interp.nc')
-ds_tasmin = xr.open_dataset('tasmin_Hd_2050_interp.nc')
-ds_pr = xr.open_dataset('pr_Hd_2050_interp.nc')
-ds_sfcwind = xr.open_dataset('sfcwind_Hd_2050_interp.nc')
-ds_pet = xr.open_dataset('pet_Hd_2050_interp.nc')
-ds_rsds = xr.open_dataset('rsds_Hd_2050_interp.nc')
+ds_hurs = xr.open_dataset('hurs_Hn_2050_interp.nc')
+ds_tas = xr.open_dataset('tas_Hn_2050_interp.nc')
+ds_tasmax = xr.open_dataset('tasmax_Hn_2050_interp.nc')
+ds_tasmin = xr.open_dataset('tasmin_Hn_2050_interp.nc')
+ds_pr = xr.open_dataset('pr_Hn_2050_interp.nc')
+ds_sfcwind = xr.open_dataset('sfcwind_Hn_2050_interp.nc')
+ds_pet = xr.open_dataset('pet_Hn_2050_interp.nc')
+ds_rsds = xr.open_dataset('rsds_Hn_2050_interp.nc')
 
 #DikeGrass crop parameters getest door Thomas (voor nu)
 #hier kan een if statement: if "zand", then:, else (clay)
@@ -30,10 +30,10 @@ ini, dev, mid, late = 30, 0, 365, 0
 pcrop = 0.45
 
 #Stel hier de gewenste locatie in (coördinaten of index)
-ens_idx = 7  #  realisatie
+ens_idx = 1  #  realisatie
 lat = 3.54933  # kies gewenste lat index
 lon = 51.40097  # kies gewenste lon index
-jaar = 2055
+jaar = 2047
 jarenrange = range(2036, 2066) 
 
 
@@ -374,5 +374,5 @@ def main_all_ensembles(lat, lon, jaren):
 
 
 
-# main_per_ensembles(ens_idx, lat, lon, jaar)
-main_all_ensembles(lat=lat, lon=lon, jaren=jarenrange)
+main_per_ensembles(ens_idx, lat, lon, jaar)
+# main_all_ensembles(lat=lat, lon=lon, jaren=jarenrange)
