@@ -9,18 +9,18 @@ import xarray as xr
 warnings.filterwarnings("ignore")
 
 # Handmatige input
-path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode\droogtegevoeligheid-keringen\src\parsing'
+path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
 grondsoort = "zand"  # 'zand' of 'klei'
 dijkvak_id = "Haven Breskens"
 
-ds_hurs = xr.open_dataset(f'{path}/hurs_Hn_2050_interp.nc')
-ds_tas = xr.open_dataset(f'{path}/tas_Hn_2050_interp.nc')
-ds_tasmax = xr.open_dataset(f'{path}/tasmax_Hn_2050_interp.nc')
-ds_tasmin = xr.open_dataset(f'{path}/tasmin_Hn_2050_interp.nc')
-ds_pr = xr.open_dataset(f'{path}/pr_Hn_2050_interp.nc')
-ds_sfcwind = xr.open_dataset(f'{path}/sfcwind_Hn_2050_interp.nc')
-ds_pet = xr.open_dataset(f'{path}/pet_Hn_2050_interp.nc')
-ds_rsds = xr.open_dataset(f'{path}/rsds_Hn_2050_interp.nc')
+ds_hurs = xr.open_dataset(f'{path}/hurs_Hn_2050_interp.nc', engine="netcdf4")
+ds_tas = xr.open_dataset(f'{path}/tas_Hn_2050_interp.nc', engine="netcdf4")
+ds_tasmax = xr.open_dataset(f'{path}/tasmax_Hn_2050_interp.nc', engine="netcdf4")
+ds_tasmin = xr.open_dataset(f'{path}/tasmin_Hn_2050_interp.nc', engine="netcdf4")
+ds_pr = xr.open_dataset(f'{path}/pr_Hn_2050_interp.nc', engine="netcdf4")
+ds_sfcwind = xr.open_dataset(f'{path}/sfcwind_Hn_2050_interp.nc', engine="netcdf4")
+ds_pet = xr.open_dataset(f'{path}/pet_Hn_2050_interp.nc', engine="netcdf4")
+ds_rsds = xr.open_dataset(f'{path}/rsds_Hn_2050_interp.nc', engine="netcdf4")
 
 #DikeGrass crop parameters getest door Thomas (voor nu)
 #hier kan een if statement: if "zand", then:, else (clay)
