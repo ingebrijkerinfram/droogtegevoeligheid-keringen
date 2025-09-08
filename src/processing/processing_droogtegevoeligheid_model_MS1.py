@@ -51,9 +51,8 @@ SOIL_PARAMS = {
 }
 
 
-def load_weather_from_nc(ens, path, em_scen, lat, lon, jaar):
+def load_weather_from_nc(path, em_scen, ens, lat, lon, jaar):
     ens_idx = 1
-    ens = ens_idx
     # Data inladen
     ds_hurs, ds_tas, ds_tasmax, ds_tasmin, ds_pr, ds_sfcwind, ds_pet, ds_rsds = read_parameters(path, em_scen)
 
@@ -66,13 +65,13 @@ def load_weather_from_nc(ens, path, em_scen, lat, lon, jaar):
     dates = ds_hurs['time'].where(time_filter, drop=True).values
 
     # Waarden ophalen met .sel(..., method='nearest')
-    T = ds_tas['tas'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    Tmin = ds_tasmin['tasmin'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    Tmax = ds_tasmax['tasmax'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    RH = ds_hurs['hurs'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    Wind = ds_sfcwind['sfcwind'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    P = ds_pet['pet'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
-    p = ds_pr['pr'].sel(ens=ens, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
+    T = ds_tas['tas'].sel(ens=ens_idx, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
+    Tmin = ds_tasmin['tasmin'].sel(ens=ens_idx, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
+    Tmax = ds_tasmax['tasmax'].sel(ens=ens_idx, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
+    RH = ds_hurs['hurs'].sel(ens=ens_idx, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
+    Wind = ds_sfcwind['sfcwind'].sel(ens=ens_idx, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
+    P = ds_pet['pet'].sel(ens=ens_idx, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
+    p = ds_pr['pr'].sel(ens=ens_idx, lat=lat, lon=lon, method="nearest").where(time_filter, drop=True).values
 
     # Berekende velden
     RHmin = (0.6108 * np.exp((17.27 * Tmin) / (Tmin + 237.3))) / (0.6108 * np.exp((17.27 * Tmax) / (Tmax + 237.3))) * 100
@@ -399,17 +398,25 @@ def select_extreme_cases(resultaten_df, lat, lon):
 
     return zwaarste[kolommen]
 
-def main_per_ensembles(path, em_scen, ens, lat, lon, jaar):
-    ens_idx = 1
-    ens = ens_idx
-    df_weather = load_weather_from_nc(path=path, em_scen=em_scen, ens=ens_idx, lat=lat, lon=lon, jaar=jaar)
-    df_water, TAW = watercalculations(df_weather)
+import os
+
+def main_per_ensembles(path, em_scen, ens, lat, lon, jaar, grondsoort, dijkvak_id, output_path=None):
+    # Soil parameters ophalen
+    soil = SOIL_PARAMS[grondsoort]
+
+    # Weerdata laden
+    df_weather = load_weather_from_nc(path=path, em_scen=em_scen, ens=ens, lat=lat, lon=lon, jaar=jaar)
+
+    # Waterbalans berekenen
+    df_water, TAW = watercalculations(df_weather, soil)
+
+    # Analyse uitvoeren
     max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag = verwelkingspunt(df_water, TAW)
     cover = living_plant_cover(max_dagen)
-   
+
     print(f"Langste aaneengesloten periode onder TAW: {max_dagen} dagen")
     print(f"Totaal aantal dagen onder TAW: {totaal_dagen}")
-    
+
     if eerste_dag and laatste_dag:
         print(f"Eerste dag onder grens: {eerste_dag.strftime('%Y-%m-%d')}")
         print(f"Laatste dag onder grens: {laatste_dag.strftime('%Y-%m-%d')}")
@@ -420,13 +427,19 @@ def main_per_ensembles(path, em_scen, ens, lat, lon, jaar):
         print("Vegetatie-uitval gedetecteerd (>45 dagen aaneengesloten)")
     else:
         print("✅ Geen vegetatie-uitval")
+
     print(f"Droogte Periode = {max_dagen} dagen → LivingPlantCover = {cover:.2f}%")
 
-    plot(df_water, TAW)
-    analyse_per_jaar(path, em_scen, ens_idx, lat, lon, jaar)
-    return max_dagen, uitval, totaal_dagen, eerste_dag, laatste_dag
+    # Plot opslaan
+    if output_path:
+        plot(df_water, TAW, grondsoort, dijkvak_id, em_scen, jaar=jaar, ens=ens)
 
-def main_all_ensembles(path, em_scen, lat, lon, jaren):
+    # Resultaten teruggeven
+    resultaten_df = analyse_per_jaar(path, em_scen, ens, lat, lon, jaar, grondsoort)
+    return resultaten_df
+
+
+def main_all_ensembles(path, em_scen, lat, lon, jaren, dijkvak_id, output_path=None):
     alle_resultaten = []
     resultaten_per_grondsoort = {"zand": [], "klei": []}
 
@@ -445,32 +458,30 @@ def main_all_ensembles(path, em_scen, lat, lon, jaren):
     alle_resultaten_df = pd.concat(alle_resultaten, ignore_index=True)
 
     # 2) CSV per grondsoort met ALLE jaren
+    if output_path:
+        os.makedirs(output_path, exist_ok=True)
+
     for grond, frames in resultaten_per_grondsoort.items():
         if frames:
             df_out = pd.concat(frames, ignore_index=True)
-            
-            # TODO
-            output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
-            outfile = f"{output_path}\{dijkvak_id}_{grond}_{em_scen}_alle_jaren.csv"
-            df_out.to_csv(outfile, index=False, encoding="utf-8")
-            # print(f"💾 Opgeslagen: {outfile}")
 
-            # ---- Nieuw blok: kansberekening LivingPlantCover == 0 ----
+            if output_path:
+                outfile = os.path.join(output_path, f"{dijkvak_id}_{grond}_{em_scen}_alle_jaren.csv")
+                df_out.to_csv(outfile, index=False, encoding="utf-8")
+                print(f"💾 Opgeslagen: {outfile}")
+
+            # Kansberekeningen
             totaal = len(df_out)
-            last_col = df_out.iloc[:, -1]  # laatste kolom
+            last_col = df_out["LivingPlantCover (%)"]
             n_zero = (last_col == 0).sum()
             n_high = ((last_col > 80) & (last_col <= 100)).sum()
             n_medium = ((last_col > 50) & (last_col <= 80)).sum()
             n_low = (last_col <= 50).sum()
-            kans_zero = n_zero / totaal if totaal > 0 else 0
-            kans_low = n_low / totaal if totaal > 0 else 0
-            kans_medium = n_medium / totaal if totaal > 0 else 0
-            kans_high = n_high / totaal if totaal > 0 else 0
-            print(f"📉 Kans op 0% LivingPlantCover ({grond}): {n_zero}/{totaal} = {kans_zero:.2%}")
-            print(f"📉 Kans op 0-50% LivingPlantCover ({grond}): {n_low}/{totaal} = {kans_low:.2%}")
-            print(f"📉 Kans op 50-80% LivingPlantCover ({grond}): {n_medium}/{totaal} = {kans_medium:.2%}")
-            print(f"📉 Kans op 80-100% LivingPlantCover ({grond}): {n_high}/{totaal} = {kans_high:.2%}")
-            # ----------------------------------------------------------
+
+            print(f"📉 Kans op 0% LivingPlantCover ({grond}): {n_zero}/{totaal} = {n_zero/totaal:.2%}")
+            print(f"📉 Kans op 0-50% LivingPlantCover ({grond}): {n_low}/{totaal} = {n_low/totaal:.2%}")
+            print(f"📉 Kans op 50-80% LivingPlantCover ({grond}): {n_medium}/{totaal} = {n_medium/totaal:.2%}")
+            print(f"📉 Kans op 80-100% LivingPlantCover ({grond}): {n_high}/{totaal} = {n_high/totaal:.2%}")
 
     # 3) Extreemste gevallen per grondsoort vinden en PLOTTEN
     for grond in ["zand", "klei"]:
@@ -480,18 +491,17 @@ def main_all_ensembles(path, em_scen, lat, lon, jaren):
             print("Geen data voor deze grondsoort.")
             continue
 
-        extreem_df = select_extreme_cases(df_g, lat=lat, lon=lon)  # print + tabel terug
+        extreem_df = select_extreme_cases(df_g, lat=lat, lon=lon)
         if extreem_df.empty:
             print("Geen extreme gevallen gevonden.")
             continue
 
         for _, row in extreem_df.iterrows():
             jaar_ext = int(row["Jaar"])
-            ens_ext  = int(row["Ensemble"])
+            ens_ext = int(row["Ensemble"])
 
-            # Data opnieuw laden & waterbalans herberekenen voor EXACT dit jaar/ens/grond
-            df_weather = load_weather_from_nc(path, em_scen, ens=ens_ext, lat=lat, lon=lon, jaar=jaar_ext)
+            df_weather = load_weather_from_nc(path, em_scen, ens_ext, lat=lat, lon=lon, jaar=jaar_ext)
             df_water, TAW = watercalculations(df_weather, SOIL_PARAMS[grond])
 
-            # Automatisch opslaan + tonen
-            plot(df_water, TAW, grond, dijkvak_id, em_scen, jaar=jaar_ext, ens=ens_ext)
+            if output_path:
+                plot(df_water, TAW, grond, dijkvak_id, em_scen, jaar=jaar_ext, ens=ens_ext)
