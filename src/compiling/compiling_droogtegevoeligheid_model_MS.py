@@ -7,12 +7,12 @@ Created on Wed Aug 13 15:24:29 2025
 
 # -*- coding: utf-8 -*-
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+# import pandas as pd
 import warnings
-import xarray as xr 
-from src.parsing.parsing_droogtegevoeligheid_model_MS import read_parameters
+# import xarray as xr 
+from src.parsing.parsing_droogtegevoeligheid_model_MS import read_parameters, read_coordinates
 from src.processing.processing_droogtegevoeligheid_model_MS1 import load_weather_from_nc, watercalculations, verwelkingspunt, living_plant_cover, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
 
 
@@ -20,22 +20,41 @@ warnings.filterwarnings("ignore")
 
 # Handmatige input
 path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
+path_grid = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode'
 input_path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
-# output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
-grondsoort = "zand"  # 'zand' of 'klei'
-dijkvak_id = "Europoortkering"
-em_scen = 'ref'
-year = '2005'
+output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
 
+grondsoort = "zand"     # "zand" of "klei"
+helling = 1/2           #  1/2, 1/3, 1/4, 1/5
+em_scen = "Hn_2050"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
 
 #Stel hier de gewenste locatie in (coördinaten of index)
 ens_idx = 1  #  realisatie
-lon = 4.28  # kies gewenste lon index
-lat = 51.9  # kies gewenste lat index
-jaar = 2005
-jarenrange = range(1991, 2021) 
+#TODO
+#lat, lon en dijkvak_id controleren/kloppend maken
 
+lat = np.array([read_coordinates(grid_path=path_grid)[0][2], read_coordinates(grid_path=path_grid)[0][3], read_coordinates(grid_path=path_grid)[0][4]])  # kies gewenste lat index
+lon = np.array([read_coordinates(grid_path=path_grid)[1][2], read_coordinates(grid_path=path_grid)[1][3], read_coordinates(grid_path=path_grid)[1][4]])  # kies gewenste lon index
+dijkvak_id = np.array([str(read_coordinates(grid_path=path_grid)[2][2]), str(read_coordinates(grid_path=path_grid)[2][3]), str(read_coordinates(grid_path=path_grid)[2][4])])
 
+if em_scen == 'ref':
+    jaar = "2005"
+    jarenrange = range(1991, 2021)
+else:
+    jaar = em_scen.split("_")[1]
+    if jaar == "2050":
+        jarenrange = range(2036, 2066)
+    elif jaar == "2100":
+        jarenrange = range(2086, 2116)
+    
+if helling == 1/2:
+    cot = 'cot2'
+elif helling == 1/3:
+    cot = 'cot3'
+elif helling == 1/4:
+    cot = 'cot4'
+elif helling == 1/5:
+    cot = 'cot5'
 
 # main_per_ensembles(ens_idx, lat, lon, jaar)
 main_all_ensembles(
@@ -43,7 +62,11 @@ main_all_ensembles(
     em_scen=em_scen,
     lat=lat,
     lon=lon,
+    year=jaar,
     jaren=jarenrange,
-    dijkvak_id=dijkvak_id,   # <-- toegevoegd
-    output_path=r"C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten"
+    grondsoort=grondsoort,
+    dijkvak_id=dijkvak_id,
+    helling=helling, # <-- toegevoegd
+    cot=cot,
+    output_path=output_path
 )

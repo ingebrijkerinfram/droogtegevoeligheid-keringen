@@ -52,15 +52,15 @@ SOIL_PARAMS = {
 }
 #Stel hier de gewenste locatie in (coördinaten of index)
 ens_idx = 1  #  realisatie
-lat = 4.28  # kies gewenste lat index
-lon = 51.9  # kies gewenste lon index
+lon = 4.28  # kies gewenste lat index
+lat = 51.9  # kies gewenste lon index
 jaar = 2005
 jarenrange = range(1991, 2021) 
 
 
 dates = ds_hurs['time'].values
 
-def load_weather_from_nc(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
+def load_weather_from_nc(ens, lat, lon, jaar):
     # Tijd filteren
     time_filter = ds_hurs['time'].dt.year == jaar
 
@@ -99,6 +99,9 @@ def load_weather_from_nc(ens=ens_idx, lat=lat, lon=lon, jaar=jaar):
         'Tsoil': Tsoil
     })
     return df.dropna()
+
+#TODO
+#latitude als input parameter van functie toevoegen
 
 def watercalculations(df, soil):
     # soil is een dict met keys zoals in SOIL_PARAMS['zand']

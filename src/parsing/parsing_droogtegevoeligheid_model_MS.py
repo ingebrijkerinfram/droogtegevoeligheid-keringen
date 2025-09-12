@@ -7,8 +7,8 @@ Created on Wed Aug 13 15:24:29 2025
 
 # -*- coding: utf-8 -*-
 
-import matplotlib.pyplot as plt
-import numpy as np
+# import matplotlib.pyplot as plt
+# import numpy as np
 import pandas as pd
 import warnings
 import xarray as xr 
@@ -16,11 +16,7 @@ import xarray as xr
 warnings.filterwarnings("ignore")
 
 # Handmatige input
-# path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
-# grondsoort = "zand"  # 'zand' of 'klei'
-# dijkvak_id = "Europoortkering"
-# em_scen = 'ref'
-# year = '2005'
+
 
 def read_parameters(path, em_scen):
     ds_hurs = xr.open_dataset(f'{path}/hurs_{em_scen}_interp.nc', engine="netcdf4")
@@ -33,6 +29,16 @@ def read_parameters(path, em_scen):
     ds_rsds = xr.open_dataset(f'{path}/rsds_{em_scen}_interp.nc', engine="netcdf4")
     
     return ds_hurs, ds_tas, ds_tasmax, ds_tasmin, ds_pr, ds_sfcwind, ds_pet, ds_rsds
+
+def read_coordinates(grid_path):
+    file = pd.read_excel(f'{grid_path}/LatLong_Dijken.xlsx')
+    latitude = file['lat']
+    longitude = file['long']
+    dijk_id = file['Dijk_ID']
+    ID = file['ID']
+    return latitude, longitude, dijk_id, ID
+    
+    
 
 
 
