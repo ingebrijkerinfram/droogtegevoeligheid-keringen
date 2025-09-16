@@ -13,7 +13,7 @@ import numpy as np
 import warnings
 # import xarray as xr 
 from src.parsing.parsing_droogtegevoeligheid_model_MS import read_parameters, read_coordinates
-from src.processing.processing_droogtegevoeligheid_model_MS1_LCP import load_weather_from_nc, watercalculations, verwelkingspunt, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
+from src.processing.processing_droogtegevoeligheid_model_MS1_LPC import load_weather_from_nc, watercalculations, verwelkingspunt, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
 
 
 warnings.filterwarnings("ignore")

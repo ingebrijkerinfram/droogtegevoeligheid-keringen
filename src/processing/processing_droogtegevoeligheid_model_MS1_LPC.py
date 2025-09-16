@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 13 15:24:29 2025
-
-@author: inge.brijker
-"""
 
 # -*- coding: utf-8 -*-
 
@@ -380,8 +374,8 @@ def analyse_per_jaar(path, em_scen, ens, lat, lon, jaar, grondsoort, dijkvak_id,
         'Vegetatie-uitval': "Ja" if uitval else "Nee",
         'LivingPlantCover (%)': round(cover, 2),
         'Bijbehorende datum': dag_cover,
-        'LCP [01-04] (%)': cover_1april,
-        'LCP [01-10] (%)': cover_1oktober,
+        'LPC [01-04] (%)': cover_1april,
+        'LPC [01-10] (%)': cover_1oktober,
     }]
     return pd.DataFrame(resultaten)
 
@@ -436,7 +430,7 @@ def main_per_ensembles(path, em_scen, ens_idx, lat, lon, jaar, grondsoort, dijkv
     # cover_1april = resultaten_verwelkingspunt['cover_1_april']
     cover_1oktober = resultaten_verwelkingspunt['cover_1_oktober']
 
-    print(f"Het percentage LCP op 1 oktober is {cover_1oktober:.2f} %")
+    print(f"Het percentage LPC op 1 oktober is {cover_1oktober:.2f} %")
     print(f"Langste aaneengesloten periode onder TAW: {max_dagen} dagen")
     print(f"Totaal aantal dagen onder TAW: {totaal_dagen}")
 
@@ -572,7 +566,7 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
             # cover_1april = resultaten_verwelkingspunt['cover_1_april']
             cover_1oktober = resultaten_verwelkingspunt['cover_1_oktober']
 
-            print(f"Het percentage LCP op 1 oktober is {cover_1oktober:.2f} %")
+            print(f"Het percentage LPC op 1 oktober is {cover_1oktober:.2f} %")
         
         
             p = df_water['p'].sum()
