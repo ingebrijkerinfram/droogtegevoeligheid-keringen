@@ -528,14 +528,31 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
         
         # Excel met meerdere tabbladen per dijk_id
         
-        outfile_excel = os.path.join(output_path, f"{em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.xlsx")
-        with pd.ExcelWriter(outfile_excel, engine='openpyxl') as writer:
-            for dv_id, df_kans in kans_resultaten_dict.items():
-                # elk tabblad krijgt als naam de dijk_id (max 31 tekens voor Excel)
-                sheet_name = str(dv_id)[:31]
-                df_kans.to_excel(writer, sheet_name=sheet_name, index=False)
-        print(f"💾 Excel met LivingPlantCover per locatie opgeslagen: {em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.xlsx")
+        # outfile_excel = os.path.join(output_path, f"{em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.xlsx")
+        # with pd.ExcelWriter(outfile_excel, engine='openpyxl') as writer:
+        #     for dv_id, df_kans in kans_resultaten_dict.items():
+        #         # elk tabblad krijgt als naam de dijk_id (max 31 tekens voor Excel)
+        #         sheet_name = str(dv_id)[:31]
+        #         df_kans.to_excel(writer, sheet_name=sheet_name, index=False)
+        # print(f"💾 Excel met LivingPlantCover per locatie opgeslagen: {em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.xlsx")
 
+        kans_lijst = []
+        for la, lo, dv_id in zip(lat, lon, dijkvak_id):
+           df_kans = kans_resultaten_dict[dv_id].copy()
+           # kolommen vooraan toevoegen
+           df_kans.insert(0, "Longitude", lo)
+           df_kans.insert(0, "Latitude", la)
+           df_kans.insert(0, "Locatie_ID", dv_id)
+           kans_lijst.append(df_kans)
+
+        if kans_lijst:
+           kans_samengevoegd = pd.concat(kans_lijst, ignore_index=True)
+
+           outfile_csv = os.path.join(
+               output_path, f"{em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.csv"
+           )
+           kans_samengevoegd.to_csv(outfile_csv, index=False, encoding="utf-8")
+           print(f"💾 CSV met LivingPlantCover per locatie opgeslagen: {em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.csv")
     
     # 3) Extreemste gevallen per grondsoort vinden en PLOTTEN
     
