@@ -28,21 +28,21 @@ input_path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
 output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
 
 grondsoort = "zand"     # "zand" of "klei"
-helling = 1/3           #  1/2, 1/3, 1/4, 1/5
-em_scen = "Ld_2100"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
+helling = 1/5           #  1/2, 1/3, 1/4, 1/5
+em_scen = "Ln_2100"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
 
 #Stel hier de gewenste locatie in (coördinaten of index)
 ens_idx = 1  #  realisatie
 #TODO
 #lat, lon en dijkvak_id controleren/kloppend maken
 
-lat = np.array([read_coordinates(grid_path=path_grid)[0][2], read_coordinates(grid_path=path_grid)[0][3], read_coordinates(grid_path=path_grid)[0][4]])  # kies gewenste lat index
-lon = np.array([read_coordinates(grid_path=path_grid)[1][2], read_coordinates(grid_path=path_grid)[1][3], read_coordinates(grid_path=path_grid)[1][4]])  # kies gewenste lon index
-dijkvak_id = np.array([str(read_coordinates(grid_path=path_grid)[2][2]), str(read_coordinates(grid_path=path_grid)[2][3]), str(read_coordinates(grid_path=path_grid)[2][4])])
+# lat = np.array([read_coordinates(grid_path=path_grid)[0][2], read_coordinates(grid_path=path_grid)[0][3], read_coordinates(grid_path=path_grid)[0][4]])  # kies gewenste lat index
+# lon = np.array([read_coordinates(grid_path=path_grid)[1][2], read_coordinates(grid_path=path_grid)[1][3], read_coordinates(grid_path=path_grid)[1][4]])  # kies gewenste lon index
+# dijkvak_id = np.array([str(read_coordinates(grid_path=path_grid)[2][2]), str(read_coordinates(grid_path=path_grid)[2][3]), str(read_coordinates(grid_path=path_grid)[2][4])])
 
-# lat = read_coordinates(grid_path=path_grid)[0][2]
-# lon = read_coordinates(grid_path=path_grid)[1][2]
-# dijkvak_id = str(read_coordinates(grid_path=path_grid)[2][2])
+lat = read_coordinates(grid_path=path_grid)[0][:]
+lon = read_coordinates(grid_path=path_grid)[1][:]
+dijkvak_id = read_coordinates(grid_path=path_grid)[2][:]
 
 if em_scen == 'ref':
     jaar = "2005"

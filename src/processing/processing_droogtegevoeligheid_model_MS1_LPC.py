@@ -386,11 +386,13 @@ def analyse_per_jaar(path, em_scen, ens, lat, lon, jaar, grondsoort, dijkvak_id,
     }]
     return pd.DataFrame(resultaten)
 
-def select_extreme_cases(resultaten_df, lat, lon):
+def select_extreme_cases(resultaten_df, lat, lon, dijkvak_id):
     """
     Selecteert de heftigste jaren + ensembles o.b.v. laagste vegetatiedekking
     en toont de kernresultaten.
     """
+    
+    resultaten_df = resultaten_df[resultaten_df['Locatie'] == dijkvak_id]
     min_cover = resultaten_df["LivingPlantCover (%)"].min()
     kandidaten = resultaten_df[resultaten_df["LivingPlantCover (%)"] == min_cover]
 
@@ -398,6 +400,9 @@ def select_extreme_cases(resultaten_df, lat, lon):
     zwaarste = kandidaten[kandidaten["Totaal dagen onder TAW"] == max_dagen]
 
     kolommen = [
+        'Locatie', 
+        'Latitude',
+        'Longitude',
         'Ensemble',
         'Jaar',
         'Langste uitvalperiode (dagen)',
@@ -591,7 +596,7 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
         if df_g.empty:
             print("Geen data voor deze grondsoort.")
         
-        extreem_df = select_extreme_cases(df_g, lat=la, lon=lo)
+        extreem_df = select_extreme_cases(df_g, lat=la, lon=lo, dijkvak_id=dv_id)
         if extreem_df.empty:
             print("Geen extreme gevallen gevonden.")
         
@@ -612,18 +617,19 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
             # cover_1april = resultaten_verwelkingspunt['cover_1_april']
             cover_1oktober = resultaten_verwelkingspunt['cover_1_oktober']
             
-            df_data['Locatie_ID'] = dv_id
-            df_data['Jaar'] = year
-            df_data['LivingPlantCover (%)'] = resultaten_verwelkingspunt["cover_per_dag"]
-            df_data['cover_1_10'] = resultaten_verwelkingspunt["cover_1_oktober"]
+            # df_data['Locatie_ID'] = dv_id
+            # df_data['Jaar'] = year
+            # df_data['LivingPlantCover (%)'] = resultaten_verwelkingspunt["cover_per_dag"]
+            # df_data['cover_1_10'] = resultaten_verwelkingspunt["cover_1_oktober"]
+            # df_data['maatgevend_cover'] = resultaten_verwelkingspunt['maatgevend_cover']
             
-            overzicht_per_dag = df_data
+            # overzicht_per_dag = df_data
             
-            if output_path:
-                outfile_daily = os.path.join(
-                    output_path, f"{em_scen}_{grondsoort}_{cot}_LivingPlantCover_per_dag.csv"
-                )
-                overzicht_per_dag.to_csv(outfile_daily, index=False, encoding="utf-8")
+            # if output_path:
+            #     outfile_daily = os.path.join(
+            #         output_path, f"{em_scen}_{grondsoort}_{cot}_LivingPlantCover_per_dag_{dv_id}.csv"
+            #     )
+            #     overzicht_per_dag.to_csv(outfile_daily, index=False, encoding="utf-8")
             
 
             print(f"Het percentage LPC op 1 oktober is {cover_1oktober:.2f} %")
