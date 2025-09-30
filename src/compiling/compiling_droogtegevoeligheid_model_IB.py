@@ -22,14 +22,15 @@ start_time = time.time()
 
 
 # Handmatige input
-path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
-path_grid = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode'
-input_path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
-output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
+path = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Scenario Data'
+path_grid = r''C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Grid'
+input_path = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Scenario Data'
+output_path = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Resultaten'
+
 
 grondsoort = "zand"     # "zand" of "klei"
-helling = 1/5           #  1/2, 1/3, 1/4, 1/5
-em_scen = "Ln_2100"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
+helling = 1/2           #  1/2, 1/3, 1/4, 1/5
+em_scen = "Hn_2050"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
 
 #Stel hier de gewenste locatie in (coördinaten of index)
 ens_idx = 1  #  realisatie
