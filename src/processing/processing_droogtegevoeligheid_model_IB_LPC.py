@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import warnings
 # import xarray as xr
-from src.parsing.parsing_droogtegevoeligheid_model_MS import read_parameters 
+from src.parsing.parsing_droogtegevoeligheid_model_IB import read_parameters 
 
 
 warnings.filterwarnings("ignore")
