@@ -338,7 +338,7 @@ def plot(df, TAW, grondsoort, dijkvak_id, em_scen, cot, year, jaar=None, ens=Non
     #TODO
     #path controleren
     
-    output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
+    output_path = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Scenario Data'
     fname = (f"{output_path}\{year}\{em_scen}_{grondsoort}_{cot}_{jaar}_ens{ens}_dijkid{dijkvak_id}_extreem.png"
              if jaar is not None and ens is not None
              else f"{output_path}\{dijkvak_id}_{grondsoort}.png")

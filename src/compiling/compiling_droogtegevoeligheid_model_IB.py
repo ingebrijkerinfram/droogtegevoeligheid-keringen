@@ -9,7 +9,7 @@ Created on Wed Aug 13 15:24:29 2025
 
 # import matplotlib.pyplot as plt
 import numpy as np
-# import pandas as pd
+#import pandas as pd
 import warnings
 # import xarray as xr 
 from src.parsing.parsing_droogtegevoeligheid_model_MS import read_parameters, read_coordinates
@@ -23,7 +23,7 @@ start_time = time.time()
 
 # Handmatige input
 path = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Scenario Data'
-path_grid = r''C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Grid'
+path_grid = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Grid'
 input_path = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Scenario Data'
 output_path = r'C:\Users\ingeb\Documents\Infram\Droogtegevoeligheid\Resultaten'
 
