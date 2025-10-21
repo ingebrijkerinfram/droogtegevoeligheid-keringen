@@ -29,7 +29,7 @@ output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Dro
 
 grondsoort = "zand"     # "zand" of "klei"
 helling = 1/5           #  1/2, 1/3, 1/4, 1/5
-em_scen = "Ln_2100"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
+em_scen = "ref"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
 
 #Stel hier de gewenste locatie in (coördinaten of index)
 ens_idx = 1  #  realisatie
