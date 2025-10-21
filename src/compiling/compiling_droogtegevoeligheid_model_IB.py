@@ -28,8 +28,8 @@ input_path = r'C:\Users\inge.brijker\OneDrive - Infram BV\Droogtegevoeligheid Ke
 output_path = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
 
 
-grondsoort = "zand"     # "zand" of "klei"
-helling = 1/3           #  1/2, 1/3, 1/4, 1/5
+grondsoort = "klei"     # "zand" of "klei"
+helling = 1/2           #  1/2, 1/3, 1/4, 1/5
 em_scen = "Hn_2100"     # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
 
 #Stel hier de gewenste locatie in (coördinaten of index)
