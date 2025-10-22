@@ -31,7 +31,7 @@ def read_parameters(path, em_scen):
     return ds_hurs, ds_tas, ds_tasmax, ds_tasmin, ds_pr, ds_sfcwind, ds_pet, ds_rsds
 
 def read_coordinates(grid_path):
-    file = pd.read_excel(f'{grid_path}/LatLong_Dijken.xlsx')
+    file = pd.read_excel(f'{grid_path}/LatLong_Dijken_Zuid.xlsx')
     latitude = file['lat']
     longitude = file['long']
     dijk_id = file['Dijk_ID']

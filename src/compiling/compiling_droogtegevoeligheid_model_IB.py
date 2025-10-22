@@ -12,8 +12,8 @@ import numpy as np
 # import pandas as pd
 import warnings
 # import xarray as xr 
-from src.parsing.parsing_droogtegevoeligheid_model_MS import read_parameters, read_coordinates
-from src.processing.processing_droogtegevoeligheid_model_MS1_LPC import load_weather_from_nc, watercalculations, verwelkingspunt, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
+from src.parsing.parsing_droogtegevoeligheid_model_IB import read_parameters, read_coordinates
+from src.processing.processing_droogtegevoeligheid_model_IB_LPC import load_weather_from_nc, watercalculations, verwelkingspunt, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
 import time
 warnings.filterwarnings("ignore")
 
@@ -22,10 +22,12 @@ start_time = time.time()
 
 
 # Handmatige input
-path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
-path_grid = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode'
-input_path = r'C:\Users\marloes.slokker\Documents\Droogtemodel'
-output_path = r'C:\Users\marloes.slokker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
+#TODO
+#path en input_path controleren en/of aanpassen
+path = r'C:\Users\inge.brijker\Documents\Droogtemodel'
+path_grid = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode'
+input_path = r'C:\Users\inge.brijker\Documents\Droogtemodel'
+output_path = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten\Zuid'
 
 grondsoort = "zand"     # "zand" of "klei"
 helling = 1/5           #  1/2, 1/3, 1/4, 1/5
