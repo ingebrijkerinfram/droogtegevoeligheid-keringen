@@ -115,8 +115,8 @@ def watercalculations(df, soil, lat, helling):
         
     r_noord = 1   
     
-    # Ra_slope = Ra * r_zuid
-    Ra_slope = Ra * r_noord
+    Ra_slope = Ra * r_zuid
+    # Ra_slope = Ra * r_noord
     
     Rso = 0.75 * Ra_slope
     Rs = 0.16 * np.sqrt(df['Tmax'] - df['Tmin']) * Ra_slope
@@ -555,10 +555,10 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
         os.makedirs(output_path, exist_ok=True)
 
         outfile = os.path.join(
-            output_path, f"{em_scen}_{grondsoort}_{cot}_N_alle_jaren.csv"
+            output_path, f"{em_scen}_{grondsoort}_{cot}_alle_jaren_Zuid.csv"
         )
         alle_resultaten_df.to_csv(outfile, index=False, encoding="utf-8")
-        print(f"💾 Opgeslagen: {em_scen}_{grondsoort}_{cot}_N_alle_jaren.csv")
+        print(f"💾 Opgeslagen: {em_scen}_{grondsoort}_{cot}_alle_jaren_Zuid.csv")
         
         # Excel met meerdere tabbladen per dijk_id
         
@@ -583,10 +583,10 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
            kans_samengevoegd = pd.concat(kans_lijst, ignore_index=True)
 
            outfile_csv = os.path.join(
-               output_path, f"{em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.csv"
+               output_path, f"{em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie_Zuid.csv"
            )
            kans_samengevoegd.to_csv(outfile_csv, index=False, encoding="utf-8")
-           print(f"💾 CSV met LivingPlantCover per locatie opgeslagen: {em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie.csv")
+           print(f"💾 CSV met LivingPlantCover per locatie opgeslagen: {em_scen}_{grondsoort}_{cot}_kans_LCP_per_locatie_Zuid.csv")
     
     # 3) Extreemste gevallen per grondsoort vinden en PLOTTEN
     
