@@ -189,7 +189,7 @@ def watercalculations(df, soil, lat, helling):
             0.0,
             p - max(
                 3.0,
-                40.0 * np.exp(-1.5/3.0) * np.sqrt(max(0.0, 1.0 - min(soil_water_after_p, 120.0)/120.0))
+                40.0 * np.exp(-1.5*helling) * np.sqrt(max(0.0, 1.0 - min(soil_water_after_p, 120.0)/120.0))
             )
         )
     

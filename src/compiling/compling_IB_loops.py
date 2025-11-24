@@ -22,7 +22,7 @@ start_time = time.time()
 path = r'C:\Users\inge.brijker\Documents\Droogtemodel'
 path_grid = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode'
 input_path = r'C:\Users\inge.brijker\Documents\Droogtemodel'
-output_path = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten\Zuid'
+output_path = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten\test runs\run met loops'
 
 #Coordinaten en dijkvakken
 lat = read_coordinates(grid_path=path_grid)[0][:]
