@@ -115,8 +115,8 @@ def watercalculations(df, soil, lat, helling):
         
     r_noord = 1   
     
-    # Ra_slope = Ra * r_zuid
-    Ra_slope = Ra * r_noord
+    Ra_slope = Ra * r_zuid
+    #Ra_slope = Ra * r_noord
     
     Rso = 0.75 * Ra_slope
     Rs = 0.16 * np.sqrt(df['Tmax'] - df['Tmin']) * Ra_slope
@@ -189,7 +189,7 @@ def watercalculations(df, soil, lat, helling):
             0.0,
             p - max(
                 3.0,
-                40.0 * np.exp(-1.5/3.0) * np.sqrt(max(0.0, 1.0 - min(soil_water_after_p, 120.0)/120.0))
+                40.0 * np.exp(-1.5*helling) * np.sqrt(max(0.0, 1.0 - min(soil_water_after_p, 120.0)/120.0))
             )
         )
     
@@ -642,7 +642,7 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
             print(f'De totale verdamping in {jaar_ext} is {ETc:.2f} mm.')
             print(f'De totale runoff in {jaar_ext} is {runoff:.2f} mm.')
             
-            if output_path:
-                plot(df_water, TAW, grondsoort, dv_id, em_scen, cot, year, jaar=jaar_ext, ens=ens_ext)
+            #if output_path:
+                #plot(df_water, TAW, grondsoort, dv_id, em_scen, cot, year, jaar=jaar_ext, ens=ens_ext)
                 
             
