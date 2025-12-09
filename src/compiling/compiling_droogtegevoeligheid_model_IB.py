@@ -22,10 +22,19 @@ start_time = time.time()
 
 
 # Handmatige input
+<<<<<<< HEAD
 path = r'C:\Users\inge.brijker\OneDrive - Infram BV\Droogtegevoeligheid Keringen\Scenario Data'
 path_grid = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode'
 input_path = r'C:\Users\inge.brijker\OneDrive - Infram BV\Droogtegevoeligheid Keringen\Scenario Data'
 output_path = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten'
+=======
+#TODO
+#path en input_path controleren en/of aanpassen
+path = r'C:\Users\inge.brijker\Documents\Droogtemodel'
+path_grid = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Methode'
+input_path = r'C:\Users\inge.brijker\Documents\Droogtemodel'
+output_path = r'C:\Users\inge.brijker\Infram BV\Infram Projecten - 000370 Droogtegevoeligheid keringen RWS\Uitvoering\Resultaten\Zuid'
+>>>>>>> 49006af0bd9018085e1fab494d30aa8ee049a458
 
 
 grondsoort = "klei"     # "zand" of "klei"
