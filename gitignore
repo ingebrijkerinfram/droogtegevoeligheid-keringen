@@ -1,0 +1,14 @@
+# Persoonlijke instellingen
+config.ini
+
+# Data en resultaten horen niet in Git
+*.nc
+data/
+output/
+Resultaten/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.spyproject/
