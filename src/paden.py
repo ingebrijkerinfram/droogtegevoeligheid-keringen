@@ -26,6 +26,8 @@ CONFIG = REPO / "config.ini"
 
 PROJECTCODE = "000687"
 
+LOKAAL_KLIMAAT = Path(r"C:\KNMI_data")
+
 # Vaste indeling binnen de projectmap (relatief t.o.v. de projectmap)
 STANDAARD = {
     "klimaatdata": "Uitvoering/Methode/Input/KNMI Data Klimaatscenarios",
@@ -80,6 +82,8 @@ def bepaal_paden(verbose=True):
     for naam, relatief in STANDAARD.items():
         if naam in cfg:
             paden[naam] = _naar_pad(cfg[naam])
+        elif naam == "klimaatdata" and LOKAAL_KLIMAAT.exists():
+            paden[naam] = LOKAAL_KLIMAAT
         elif projectmap is not None:
             paden[naam] = projectmap / relatief
         else:
@@ -90,7 +94,7 @@ def bepaal_paden(verbose=True):
             )
 
     if verbose:
-        print("📁 Gebruikte paden:")
+        print("Gebruikte paden:")
         if projectmap is not None:
             print(f"   projectmap  : {projectmap}  ({bron})")
         for naam, pad in paden.items():
@@ -115,4 +119,4 @@ def controleer_klimaatdata(paden, em_scen, variabelen=VARIABELEN):
             f"In {paden['klimaatdata']} ontbreken {len(ontbrekend)} bestand(en) "
             f"voor scenario {em_scen}:\n  - " + "\n  - ".join(ontbrekend)
         )
-    print(f"✅ Alle {len(variabelen)} klimaatbestanden voor {em_scen} gevonden.")
+    print(f"Alle {len(variabelen)} klimaatbestanden voor {em_scen} gevonden.")

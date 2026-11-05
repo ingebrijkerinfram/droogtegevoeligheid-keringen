@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import warnings
-# import xarray as xr
-from src.parsing.parsing_droogtegevoeligheid_model_IB import read_parameters 
+from functools import lru_cache
+from src.parsing.parsing_droogtegevoeligheid_model_vervolg  import read_parameters 
 
 
 warnings.filterwarnings("ignore")
@@ -33,6 +33,7 @@ SOIL_PARAMS = {
         "pcrop": 0.4
     }
 }
+
 
 def load_weather_from_nc(path, em_scen, ens, lat, lon, jaar):
     # Data inladen
@@ -149,23 +150,35 @@ def watercalculations(df, soil, lat, helling):
     factor_10m_to_2m = 4.87 / np.log(67.8 * 10 - 5.42)
     ET0 = ((0.408 * delta_slope * Rn) + gamma * (900 / (df['T'] + 273)) * (factor_10m_to_2m * df['Wind']) * (es - ea)) / (delta_slope + gamma * (1 + 0.34 * 0.75 * df['Wind']))
     df['ET0'] = ET0
-
-    df['Kc'] = np.nan; df['ETc'] = np.nan; df['Ks'] = np.nan
-    df['Diend'] = np.nan; df['Distart'] = np.nan; df['RAW'] = np.nan
-
+    
+    
+    ####################### nieuw ############################
     TAW = 1000 * (Ofc - Owp) * Zr
     Distart = 0.0
-    
+
     # TODO (aangepaste formule voor soil_water_start)
     soil_water_start = Ofc * np.sqrt(300)   # startvoorraad (mm)
-    
+
+    # Sneller: de kolommen één keer omzetten naar numpy-arrays (in plaats van df.at in de loop)
+    runoff_factor = 40.0 * np.exp(-1.5 * helling)   # constant, dus buiten de loop
+    day_arr = df['day_number'].to_numpy()
+    T_arr   = df['T'].to_numpy()
+    RH_arr  = df['RH'].to_numpy()
+    ET0_arr = df['ET0'].to_numpy()
+    p_arr   = df['p'].to_numpy(dtype=float)
+
+    namen = ['Kc', 'ETc', 'Ks', 'Diend', 'Distart', 'RAW', 'soil_water_start',
+             'soil_water_after_p', 'runoff', 'p_eff', 'final_soil_water', 'DP',
+             'soil_water_next_day']
+    uit = {naam: np.full(len(df), np.nan) for naam in namen}
+
     for i in range(len(df)):
-        day = df.at[i, 'day_number']
-        T   = df.at[i, 'T']
-        RH  = df.at[i, 'RH']
-        ET0 = df.at[i, 'ET0']
-        p   = float(df.at[i, 'p'])
-    
+        day = day_arr[i]
+        T   = T_arr[i]
+        RH  = RH_arr[i]
+        ET0 = ET0_arr[i]
+        p   = p_arr[i]
+
         # Kc per groeifase
         if day <= ini:
             Kc = Kcini
@@ -177,49 +190,54 @@ def watercalculations(df, soil, lat, helling):
             Kc = Kcmid + ((day - ini - dev - mid) / late) * (Kclate - Kcmid)
         else:
             Kc = Kclate
-    
+
         ETc = Kc * ET0
         RAW = (pcrop + 0.04 * (5 - ETc)) * TAW
         denom = (TAW - RAW) if (TAW - RAW) != 0 else 1e-6
         Ks = max(0.0, min(1.0, (TAW - Distart) / denom))
-    
+
         # Runoff
         soil_water_after_p = soil_water_start + p
         runoff = max(
             0.0,
             p - max(
                 3.0,
-                40.0 * np.exp(-1.5*helling) * np.sqrt(max(0.0, 1.0 - min(soil_water_after_p, 120.0)/120.0))
+                runoff_factor * np.sqrt(max(0.0, 1.0 - min(soil_water_after_p, 120.0)/120.0))
             )
         )
-    
+
         p_eff = p - runoff
-    
+
         final_soil_water = soil_water_start + p_eff - (ETc * Ks)
-        DP = max(0.0, final_soil_water - soil_water_start)    
-        soil_water_next_day = final_soil_water - DP 
+        DP = max(0.0, final_soil_water - soil_water_start)
+        soil_water_next_day = final_soil_water - DP
         soil_water_next_day = max(0.0, soil_water_next_day)
-    
+
         # Deficit-update met p_eff
         Diend = Distart + (ETc * Ks) - p_eff
-    
-        df.at[i, 'Kc'] = Kc
-        df.at[i, 'ETc'] = ETc
-        df.at[i, 'Ks'] = Ks
-        df.at[i, 'Diend'] = Diend
-        df.at[i, 'Distart'] = Distart
-        df.at[i, 'RAW'] = RAW
-        df.at[i, 'soil_water_start'] = soil_water_start
-        df.at[i, 'soil_water_after_p'] = soil_water_after_p
-        df.at[i, 'runoff'] = runoff
-        df.at[i, 'p_eff'] = p_eff
-        df.at[i, 'final_soil_water'] = final_soil_water
-        df.at[i, 'DP'] = DP
-        df.at[i, 'soil_water_next_day'] = soil_water_next_day
-    
+
+        # Resultaten in de arrays zetten (in plaats van df.at)
+        uit['Kc'][i] = Kc
+        uit['ETc'][i] = ETc
+        uit['Ks'][i] = Ks
+        uit['Diend'][i] = Diend
+        uit['Distart'][i] = Distart
+        uit['RAW'][i] = RAW
+        uit['soil_water_start'][i] = soil_water_start
+        uit['soil_water_after_p'][i] = soil_water_after_p
+        uit['runoff'][i] = runoff
+        uit['p_eff'][i] = p_eff
+        uit['final_soil_water'][i] = final_soil_water
+        uit['DP'][i] = DP
+        uit['soil_water_next_day'][i] = soil_water_next_day
+
         soil_water_start = soil_water_next_day
         Distart = 0.0 if (pd.isna(Diend) or Diend < 0) else Diend
-    
+
+    # Na de loop alles in één keer terugzetten in de DataFrame
+    for naam in namen:
+        df[naam] = uit[naam]
+
     return df, TAW
 
 

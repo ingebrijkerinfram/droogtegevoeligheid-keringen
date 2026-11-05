@@ -7,17 +7,14 @@ Created on Wed Aug 13 15:24:29 2025
 
 # -*- coding: utf-8 -*-
 
-# import matplotlib.pyplot as plt
-# import numpy as np
 import pandas as pd
 import warnings
 import xarray as xr 
+from functools import lru_cache
 
 warnings.filterwarnings("ignore")
 
-# Handmatige input
-
-
+@lru_cache(maxsize=None)
 def read_parameters(path, em_scen):
     ds_hurs = xr.open_dataset(f'{path}/hurs_{em_scen}_interp.nc', engine="netcdf4")
     ds_tas = xr.open_dataset(f'{path}/tas_{em_scen}_interp.nc', engine="netcdf4")
@@ -31,10 +28,10 @@ def read_parameters(path, em_scen):
     return ds_hurs, ds_tas, ds_tasmax, ds_tasmin, ds_pr, ds_sfcwind, ds_pet, ds_rsds
 
 def read_coordinates(grid_path):
-    file = pd.read_excel(f'{grid_path}/LatLong_Dijken.xlsx')
+    file = pd.read_excel(f'{grid_path}/LatLong_grids.xlsx', sheet_name='NL_grid') # Nieuwe file geconnect van alle gridscellen in NL
     latitude = file['lat']
     longitude = file['long']
-    dijk_id = file['Dijk_ID']
+    dijk_id = file['ID'] # Was ''Dijk_ID''
     ID = file['ID']
     return latitude, longitude, dijk_id, ID
     
