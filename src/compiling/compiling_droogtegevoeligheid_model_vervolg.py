@@ -13,6 +13,7 @@ from src.paden import bepaal_paden, controleer_klimaatdata
 from src.parsing.parsing_droogtegevoeligheid_model_vervolg  import read_parameters, read_coordinates
 from src.processing.processing_droogtegevoeligheid_model_vervolg  import load_weather_from_nc, watercalculations, verwelkingspunt, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
 import time
+import sys
 warnings.filterwarnings("ignore")
 
 
@@ -20,6 +21,8 @@ warnings.filterwarnings("ignore")
 # ================================ INSTELLINGEN ================================
 # Alle combinaties van deze lijsten worden na elkaar doorgerekend. Je kan varieren in welke data je allemaal wilt rekenen
 SCENARIOS    = ["Hd_2050"]   # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
+if len(sys.argv) > 1:
+    SCENARIOS = sys.argv[1].split(",")
 HELLINGEN    = [1/2]         # 1/2, 1/3, 1/4, 1/5
 GRONDSOORTEN = ["klei"]      # "zand", "klei"
 
