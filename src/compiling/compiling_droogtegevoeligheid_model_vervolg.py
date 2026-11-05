@@ -64,9 +64,9 @@ def run(em_scen="Hd_2050", helling=1/2, grondsoort="klei", testrun=True):
     
     
     # Inlezen van coordinaten
-    lat = read_coordinates(grid_path=path_grid)[0][:5] #testrun, anders [:] voor alles rekenen, voor alle drie de regels.
-    lon = read_coordinates(grid_path=path_grid)[1][:5]
-    dijkvak_id = read_coordinates(grid_path=path_grid)[2][:5]
+    lat = read_coordinates(grid_path=path_grid)[0][:20] #testrun, anders [:] voor alles rekenen, voor alle drie de regels.
+    lon = read_coordinates(grid_path=path_grid)[1][:20]
+    dijkvak_id = read_coordinates(grid_path=path_grid)[2][:20]
     
     
     # Jaren voor VOLLEDIGE run
@@ -82,10 +82,10 @@ def run(em_scen="Hd_2050", helling=1/2, grondsoort="klei", testrun=True):
     
     # Jaren voor TESTRUN: alleen de eerste 5 gridcellen en de eerste 2 jaar
     if testrun:
-        lat = lat[:5]
-        lon = lon[:5]
-        dijkvak_id = dijkvak_id[:5]
-        jarenrange = jarenrange[:2]
+        lat = lat[:20]
+        lon = lon[:20]
+        dijkvak_id = dijkvak_id[:20]
+        jarenrange = jarenrange[:]
     
     if helling == 1/2:
         cot = 'cot2'
