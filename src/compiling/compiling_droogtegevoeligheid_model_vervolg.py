@@ -27,7 +27,7 @@ HELLINGEN    = [1/2]         # 1/2, 1/3, 1/4, 1/5
 GRONDSOORTEN = ["klei"]      # "zand", "klei"
 
 # Optie voor testrun
-TESTRUN = True   # True = alleen 5 gridcellen en 2 jaar (output in map 'Testrun'), False = alles
+TESTRUN = False   # True = alleen 5 gridcellen en 2 jaar (output in map 'Testrun'), False = alles
 # ==============================================================================
 
 
