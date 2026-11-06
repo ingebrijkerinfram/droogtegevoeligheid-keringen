@@ -64,9 +64,9 @@ def run(em_scen="Hd_2050", helling=1/2, grondsoort="klei", testrun=True):
     
     
     # Inlezen van coordinaten
-    lat = read_coordinates(grid_path=path_grid)[0][:20] #testrun, anders [:] voor alles rekenen, voor alle drie de regels.
-    lon = read_coordinates(grid_path=path_grid)[1][:20]
-    dijkvak_id = read_coordinates(grid_path=path_grid)[2][:20]
+    lat = read_coordinates(grid_path=path_grid)[0][:] #testrun, anders [:] voor alles rekenen, voor alle drie de regels.
+    lon = read_coordinates(grid_path=path_grid)[1][:]
+    dijkvak_id = read_coordinates(grid_path=path_grid)[2][:]
     
     
     # Jaren voor VOLLEDIGE run
