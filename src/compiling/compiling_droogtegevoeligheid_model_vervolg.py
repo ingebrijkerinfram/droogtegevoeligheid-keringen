@@ -23,7 +23,7 @@ warnings.filterwarnings("ignore")
 SCENARIOS    = ["Hd_2050"]   # "ref", "Hn_2050", "Hd_2050", "Ln_2100", "Ld_2100", "Hn_2100", "Hd_2100"
 if len(sys.argv) > 1:
     SCENARIOS = sys.argv[1].split(",")
-HELLINGEN    = [1/2, 1/3, 1/4, 1/5]  # 1/2, 1/3, 1/4, 1/5
+HELLINGEN    = [1/3, 1/4, 1/5]  # 1/2, 1/3, 1/4, 1/5
 GRONDSOORTEN = ["zand"]      # "zand", "klei"
 
 # Optie voor testrun
