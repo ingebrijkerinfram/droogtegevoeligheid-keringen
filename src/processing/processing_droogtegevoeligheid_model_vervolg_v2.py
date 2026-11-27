@@ -200,8 +200,8 @@ def watercalculations(df, soil, lat, helling, options=DEFAULT_OPTIONS, mowing_da
     
     # Controle overige klimaatvariabelen
     if (
-        not df['RH'].between(0, 100).all()
-        or (df[['Wind', 'p', 'Rs_horizontal']] < 0).any().any()
+       # not df['RH'].between(0, 100).all()
+        not (df[['Wind', 'p', 'Rs_horizontal']] < 0).any().any()
     ):
         raise ValueError(
             'Ongeldige klimaatinvoer; controleer RH, Wind, neerslag en straling'
