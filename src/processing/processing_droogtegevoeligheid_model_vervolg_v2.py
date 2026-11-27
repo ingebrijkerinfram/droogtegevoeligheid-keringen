@@ -166,14 +166,67 @@ def watercalculations(df, soil, lat, helling, options=DEFAULT_OPTIONS, mowing_da
     pcrop  = soil["pcrop"]
 
     df = df.copy()
+
     kolommen = ['Tmin', 'Tmax', 'T', 'RH', 'p', 'Wind', 'Rs_horizontal']
     df[kolommen] = df[kolommen].apply(pd.to_numeric, errors='coerce')
+    
+    
+    ####################################################################
+    # NIEUW STUKJE
+    ####################################################################
+    # Controle op ontbrekende / niet-numerieke waarden
     if not np.isfinite(df[kolommen]).all().all():
         raise ValueError('Ontbrekende of ongeldige KNMI-dagwaarden')
-    if (df['Tmin'] > df['Tmax']).any() or not df['RH'].between(0, 100).all() or (df[['Wind','p','Rs_horizontal']] < 0).any().any():
-        raise ValueError('Ongeldige klimaatinvoer; controleer eenheden')
+    
+    
+    # ---------------------------------------------------------
+    # Correctie voor dagen waarop Tmin > Tmax in de KNMI-data
+    # ---------------------------------------------------------
+    mask_temp = df['Tmin'] > df['Tmax']
+    
+    if mask_temp.any():
+        print(
+            f"Waarschuwing: {mask_temp.sum()} dagen met Tmin > Tmax. "
+            "Tmin en Tmax worden voor deze dagen omgewisseld."
+        )
+    
+        # Bewaar oorspronkelijke Tmin tijdelijk
+        tmin_origineel = df.loc[mask_temp, 'Tmin'].copy()
+    
+        # Verwissel Tmin en Tmax
+        df.loc[mask_temp, 'Tmin'] = df.loc[mask_temp, 'Tmax']
+        df.loc[mask_temp, 'Tmax'] = tmin_origineel
+    
+    
+    # Controle overige klimaatvariabelen
+    if (
+        not df['RH'].between(0, 100).all()
+        or (df[['Wind', 'p', 'Rs_horizontal']] < 0).any().any()
+    ):
+        raise ValueError(
+            'Ongeldige klimaatinvoer; controleer RH, Wind, neerslag en straling'
+        )
+    
+    
     df = df.reset_index(drop=True)
     df['day_number'] = df['Date'].dt.dayofyear
+
+    ####################################################################
+    # EINDE NIEUW STUKJE (ter vervanging van onderstaande)
+    ####################################################################
+
+    ############ LET OP ONDERSTAANDE IS VERVANGEN DOOR BOVENSTAANDE IVM EEN AANTAL WAARDEN DIE MAX WAREN AANGEGEVEN WAAR MINWAARDE WAS.
+    # df = df.copy()
+    # kolommen = ['Tmin', 'Tmax', 'T', 'RH', 'p', 'Wind', 'Rs_horizontal']
+    # df[kolommen] = df[kolommen].apply(pd.to_numeric, errors='coerce')
+    # if not np.isfinite(df[kolommen]).all().all():
+    #     raise ValueError('Ontbrekende of ongeldige KNMI-dagwaarden')
+    
+    # if (df['Tmin'] > df['Tmax']).any() or not df['RH'].between(0, 100).all() or (df[['Wind','p','Rs_horizontal']] < 0).any().any():
+    #     raise ValueError('Ongeldige klimaatinvoer; controleer eenheden')
+    # df = df.reset_index(drop=True)
+    # df['day_number'] = df['Date'].dt.dayofyear
+    ############ einde oude stukje
     
     #TODO
     # Latitude moet een range worden.

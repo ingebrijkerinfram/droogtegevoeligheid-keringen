@@ -9,7 +9,7 @@ Created on Wed Aug 13 15:24:29 2025
 
 import numpy as np
 import warnings
-from src.padenv2 import bepaal_paden, controleer_klimaatdata
+from src.padenv2zuid import bepaal_paden, controleer_klimaatdata
 from src.parsing.parsing_droogtegevoeligheid_model_vervolg  import read_parameters, read_coordinates
 from src.processing.processing_droogtegevoeligheid_model_vervolg_v2compare_zuid  import load_weather_from_nc, watercalculations, verwelkingspunt, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
 from src.processing.processing_droogtegevoeligheid_model_vervolg_v2compare_zuid import ModelOptions

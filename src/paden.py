@@ -32,7 +32,7 @@ LOKAAL_KLIMAAT = Path(r"C:\KNMI_data")
 STANDAARD = {
     "klimaatdata": "Uitvoering/Methode/Input/KNMI Data Klimaatscenarios",
     "locaties": "Uitvoering/Methode/Input/Gridkaart Nederland/LatLong_grids.xlsx",
-    "output": "Uitvoering/Methode/Output",
+    "output": "Uitvoering/Methode/Output/Testruns/Testrun_v2_aanpassingenTE",
 }
 
 # KNMI'23-variabelen die het model per scenario inleest
