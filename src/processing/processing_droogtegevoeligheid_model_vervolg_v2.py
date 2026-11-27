@@ -197,19 +197,26 @@ def watercalculations(df, soil, lat, helling, options=DEFAULT_OPTIONS, mowing_da
         df.loc[mask_temp, 'Tmin'] = df.loc[mask_temp, 'Tmax']
         df.loc[mask_temp, 'Tmax'] = tmin_origineel
     
-    
+    ''''
     # Controle overige klimaatvariabelen
     if (
-       # not df['RH'].between(0, 100).all()
-        not (df[['Wind', 'p', 'Rs_horizontal']] < 0).any().any()
+        not df['RH'].between(0, 100).all()
+        #not (df[['Wind', 'p', 'Rs_horizontal']] < 0).any().any()
     ):
         raise ValueError(
             'Ongeldige klimaatinvoer; controleer RH, Wind, neerslag en straling'
         )
+    '''
     
-    
-    df = df.reset_index(drop=True)
-    df['day_number'] = df['Date'].dt.dayofyear
+       # Negatieve klimaatwaarden op 0 zetten en flaggen
+    cols = ['RH', 'Wind', 'p', 'Rs_horizontal']
+    neg = df[cols].lt(0)
+    df['negatief_op_0'] = neg.any(axis=1)
+    if neg.any().any():
+       for _, r in df.loc[df['negatief_op_0']].iterrows():
+               kol = [c for c in cols if r[c] < 0]
+    print(f"\n⚠️ {r['Date'].date()}: {kol} negatief → op 0 gezet")
+    df[cols] = df[cols].clip(lower=0)
 
     ####################################################################
     # EINDE NIEUW STUKJE (ter vervanging van onderstaande)
@@ -633,6 +640,7 @@ def analyse_per_jaar(path, em_scen, ens, lat, lon, jaar, grondsoort, dijkvak_id,
         'Eerste dag onder TAW': eerste_dag.strftime('%Y-%m-%d') if eerste_dag else None,
         'Laatste dag onder TAW': laatste_dag.strftime('%Y-%m-%d') if laatste_dag else None,
         'Vegetatie-uitval': "Ja" if uitval else "Nee",
+        'Dagen negatief→0': int(df_water['negatief_op_0'].sum()),
         'LivingPlantCover (%)': round(cover, 2),
         'Bijbehorende datum': dag_cover,
         'LPC [01-10] (%)': cover_1oktober,
@@ -745,7 +753,7 @@ def main_all_ensembles(path, em_scen, lat, lon, year, jaren, grondsoort, dijkvak
         for jaar in jaren:
             print(f"\r⏳ ... Analyseren voor jaar {jaar}", end="", flush=True)
             resultaten_per_jaar = []
-            for ens in range(8):
+            for ens in range(1,9):
                 resultaten_df = analyse_per_jaar(
                     path, em_scen, ens, la, lo, jaar, grondsoort, dv_id, helling, options
                 )
