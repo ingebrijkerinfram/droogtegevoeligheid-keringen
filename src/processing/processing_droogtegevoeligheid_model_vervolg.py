@@ -21,14 +21,14 @@ SOIL_PARAMS = {
     "zand": {
         "Kcini": 0.5, "Kcmid": 0.8, "Kclate": 0.6,
         "h": 0.4, "Zr": 0.3,
-        "Ofc": 0.2, "Owp": 0.05,
+        "Ofc": 0.12, "Owp": 0.05,        # was 0.2 / 0.05
         "ini": 30, "dev": 0, "mid": 365, "late": 0,
         "pcrop": 0.45
     },
     "klei": {
         "Kcini": 0.5, "Kcmid": 0.9, "Kclate": 0.6,
-        "h": 0.3, "Zr": 0.3,
-        "Ofc": 0.35, "Owp": 0.17,
+        "h": 0.3, "Zr": 0.4,            # was 0.3 / 0.3
+        "Ofc": 0.31, "Owp": 0.11,       # was 0.35 / 0.17
         "ini": 30, "dev": 0, "mid": 365, "late": 0,
         "pcrop": 0.4
     }
@@ -116,8 +116,9 @@ def watercalculations(df, soil, lat, helling):
         
     r_noord = 1   
     
-    Ra_slope = Ra * r_zuid
-    #Ra_slope = Ra * r_noord
+    # Orientatie
+    ORIENTATIE = "zuid"   # "zuid" of "noord"
+    Ra_slope = Ra * (r_zuid if ORIENTATIE == "zuid" else r_noord)
     
     Rso = 0.75 * Ra_slope
     Rs = 0.16 * np.sqrt(df['Tmax'] - df['Tmin']) * Ra_slope
