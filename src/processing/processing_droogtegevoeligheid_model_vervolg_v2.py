@@ -197,27 +197,20 @@ def watercalculations(df, soil, lat, helling, options=DEFAULT_OPTIONS, mowing_da
         df.loc[mask_temp, 'Tmin'] = df.loc[mask_temp, 'Tmax']
         df.loc[mask_temp, 'Tmax'] = tmin_origineel
     
-    ''''
-    # Controle overige klimaatvariabelen
-    if (
-        not df['RH'].between(0, 100).all()
-        #not (df[['Wind', 'p', 'Rs_horizontal']] < 0).any().any()
-    ):
-        raise ValueError(
-            'Ongeldige klimaatinvoer; controleer RH, Wind, neerslag en straling'
-        )
-    '''
     
-       # Negatieve klimaatwaarden op 0 zetten en flaggen
+    # Negatieve klimaatwaarden op 0 zetten en flaggen
     cols = ['RH', 'Wind', 'p', 'Rs_horizontal']
     neg = df[cols].lt(0)
     df['negatief_op_0'] = neg.any(axis=1)
     if neg.any().any():
        for _, r in df.loc[df['negatief_op_0']].iterrows():
                kol = [c for c in cols if r[c] < 0]
-    print(f"\n⚠️ {r['Date'].date()}: {kol} negatief → op 0 gezet")
+               print(f"\n⚠️ {r['Date'].date()}: {kol} negatief → op 0 gezet")
     df[cols] = df[cols].clip(lower=0)
 
+    df = df.reset_index(drop=True)
+    df['day_number'] = df['Date'].dt.dayofyear
+    
     ####################################################################
     # EINDE NIEUW STUKJE (ter vervanging van onderstaande)
     ####################################################################
