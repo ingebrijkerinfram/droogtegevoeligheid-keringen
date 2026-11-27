@@ -33,8 +33,8 @@ GRONDSOORTEN = ["klei", "zand"]      # "zand", "klei"
 # Onafhankelijke schakelaars: meerdere waarden = alle combinaties.
 # True/False voor bodem: True is de reeds aangeleverde parameterisatie.
 BODEM_NIEUW = [True]
-MAAIEN = [False, True]
-NIEUWE_MORTALITEIT = [False, True]
+MAAIEN = [False]
+NIEUWE_MORTALITEIT = [False]
 LUCHTDRUK_KPA = 101.3
 MAAIDATA_ZAND = ((5, 31), (8, 31))   # maand, dag (jaarlijks)
 MAAIDATA_KLEI = ((5, 31), (8, 31))
