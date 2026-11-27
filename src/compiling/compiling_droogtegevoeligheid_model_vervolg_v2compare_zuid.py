@@ -10,7 +10,7 @@ Created on Wed Aug 13 15:24:29 2025
 import numpy as np
 import warnings
 from src.padenv2zuid import bepaal_paden, controleer_klimaatdata
-from src.parsing.parsing_droogtegevoeligheid_model_vervolg  import read_parameters, read_coordinates
+from src.parsing.parsing_droogtegevoeligheid_model_vervolg_v2compare_zuid  import read_parameters, read_coordinates
 from src.processing.processing_droogtegevoeligheid_model_vervolg_v2compare_zuid  import load_weather_from_nc, watercalculations, verwelkingspunt, plot, analyse_per_jaar, select_extreme_cases, main_per_ensembles, main_all_ensembles
 from src.processing.processing_droogtegevoeligheid_model_vervolg_v2compare_zuid import ModelOptions
 from itertools import product
@@ -32,9 +32,9 @@ GRONDSOORTEN = ["klei", "zand"]      # "zand", "klei"
 
 # Onafhankelijke schakelaars: meerdere waarden = alle combinaties.
 # True/False voor bodem: True is de reeds aangeleverde parameterisatie.
-BODEM_NIEUW = [True]
-MAAIEN = [False, True]
-NIEUWE_MORTALITEIT = [False, True]
+BODEM_NIEUW = [False]
+MAAIEN = [False]
+NIEUWE_MORTALITEIT = [False]
 LUCHTDRUK_KPA = 101.3
 MAAIDATA_ZAND = ((5, 31), (8, 31))   # maand, dag (jaarlijks)
 MAAIDATA_KLEI = ((5, 31), (8, 31))
